@@ -1,3 +1,4 @@
+from geopy.distance import geodesic
 from geopy.geocoders import Nominatim
 
 from django.conf import settings
@@ -5,13 +6,10 @@ from django.db import models
 from django.db.models import CASCADE
 
 
-def find_lat_and_lng_by_name(name):
+def get_coordinates(city_name):
     geolocator = Nominatim(user_agent="train_station_v1.0")
-    location = geolocator.geocode(name)
-    return {
-        "latitude": location.latitude,
-        "longitude": location.longitude
-    }
+    location = geolocator.geocode(city_name)
+    return location.latitude, location.longitude
 
 
 class Crew(models.Model):
@@ -25,19 +23,37 @@ class Station(models.Model):
 
     @property
     def latitude(self):
-        coordinates = find_lat_and_lng_by_name(self.name)
-        return coordinates.get("latitude")
+
+        """Returns the latitude of the location based on city name.
+        Coordinates returned by the `get_coordinates` function in (latitude, longitude) format."""
+
+        coordinates = get_coordinates(self.name)
+        return coordinates[0]
 
     @property
     def longitude(self):
-        coordinates = find_lat_and_lng_by_name(self.name)
-        return coordinates.get("longitude")
+
+        """Returns the longitude of the location based on city name.
+        Coordinates returned by the `get_coordinates` function in (latitude, longitude) format."""
+
+        coordinates = get_coordinates(self.name)
+        return coordinates[1]
 
 
 class Route(models.Model):
     source = models.ForeignKey(Station, on_delete=CASCADE, related_name="source_routes")
     destination = models.ForeignKey(Station, on_delete=CASCADE, related_name="destination_routes")
-    distance = models.IntegerField()
+
+    @property
+    def distance(self):
+        """
+        Returns the integer distance of 2 cities based on their name.
+        Coordinates returned by the `get_coordinates` and counted kilometers by 'geodesic'
+        """
+        coord_source = get_coordinates(self.source.name)
+        coord_destination = get_coordinates(self.destination.name)
+        distance = geodesic(coord_source, coord_destination).kilometers
+        return int(distance)
 
 
 class TrainType(models.Model):
