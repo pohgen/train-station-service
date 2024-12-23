@@ -35,8 +35,8 @@ class Station(models.Model):
 
 
 class Route(models.Model):
-    source = models.ForeignKey(Station, on_delete=CASCADE, related_name="routes")
-    destination = models.ForeignKey(Station, on_delete=CASCADE, related_name="routes")
+    source = models.ForeignKey(Station, on_delete=CASCADE, related_name="source_routes")
+    destination = models.ForeignKey(Station, on_delete=CASCADE, related_name="destination_routes")
     distance = models.IntegerField()
 
 
