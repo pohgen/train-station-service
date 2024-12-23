@@ -1,6 +1,17 @@
+from geopy.geocoders import Nominatim
+
 from django.conf import settings
 from django.db import models
-from django.db.models import CASCADE, IntegerField
+from django.db.models import CASCADE
+
+
+def find_lat_and_lng_by_name(name):
+    geolocator = Nominatim(user_agent="train_station_v1.0")
+    location = geolocator.geocode(name)
+    return {
+        "latitude": location.latitude,
+        "longitude": location.longitude
+    }
 
 
 class Crew(models.Model):
@@ -11,8 +22,16 @@ class Crew(models.Model):
 
 class Station(models.Model):
     name = models.CharField(max_length=255)
-    latitude = models.FloatField()
-    longitude = models.FloatField()
+
+    @property
+    def latitude(self):
+        coordinates = find_lat_and_lng_by_name(self.name)
+        return coordinates.get("latitude")
+
+    @property
+    def longitude(self):
+        coordinates = find_lat_and_lng_by_name(self.name)
+        return coordinates.get("longitude")
 
 
 class Route(models.Model):
