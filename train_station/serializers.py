@@ -52,7 +52,7 @@ class TicketSerializer(serializers.ModelSerializer):
         Ticket.validate_ticket(
             attrs["cargo"],
             attrs["seat"],
-            attrs["journey"].route,
+            attrs["journey"].train,
             ValidationError
         )
         return data
