@@ -65,6 +65,9 @@ class Route(models.Model):
     def __str__(self):
         return f"{self.source} - {self.destination}"
 
+    class Meta:
+        unique_together = ("source", "destination")
+
 
 class TrainType(models.Model):
     name = models.CharField(max_length=255)
@@ -82,6 +85,9 @@ class Train(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ["name"]
+
 
 class Journey(models.Model):
     route = models.ForeignKey(Route, on_delete=CASCADE, related_name="journeys")
@@ -94,6 +100,9 @@ class Journey(models.Model):
         departure_time = self.departure_time.strftime("%Y-%m-%d %H:%M")
         return f"{self.route.source} - {self.route.destination} ({departure_time})"
 
+    class Meta:
+        ordering = ["-departure_time"]
+
 
 class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -101,6 +110,9 @@ class Order(models.Model):
 
     def __str__(self):
         return self.created_at.strftime("%Y-%m-%d %H:%M:%S")
+
+    class Meta:
+        ordering = ["-created_at"]
 
 
 class Ticket(models.Model):
