@@ -1,11 +1,13 @@
 from datetime import timedelta
 
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient
 
 from train_station.models import TrainType, Train, Crew, Station, Route, Journey, Order, Ticket
+from train_station.serializers import RouteSerializer
 from user.models import User
 
 
@@ -22,7 +24,7 @@ class TicketSerializerTest(TestCase):
         )
         self.crew = Crew.objects.create(first_name="Nikita", last_name="Tkachenko")
         self.station1 = Station.objects.create(name="Kyiv")
-        self.station2 = Station.objects.create(name="Kyiv")
+        self.station2 = Station.objects.create(name="Kharkiv")
         self.route = Route.objects.create(source=self.station1, destination=self.station2)
         self.journey = Journey.objects.create(
             route=self.route,
@@ -60,3 +62,37 @@ class TicketSerializerTest(TestCase):
         }
         response = self.client.post("/api/train-station/tickets/", payload)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_filter_routes_by_source(self):
+        station_test = Station.objects.create(name="Oslo")
+        route_test = Route.objects.create(source=station_test, destination=self.station1)
+
+        res = self.client.get(
+            reverse("train_station:route-list"), {
+                "source": f"{station_test.id}",
+            }
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        route_ids = [route["id"] for route in res.data]
+
+        self.assertNotIn(self.route.id, route_ids)
+        self.assertIn(route_test.id, route_ids)
+
+    def test_filter_routes_by_destination(self):
+        station_test = Station.objects.create(name="Oslo")
+        route_test = Route.objects.create(source=self.station1, destination=station_test)
+
+        res = self.client.get(
+            reverse("train_station:route-list"), {
+                "destination": f"{station_test.id}",
+            }
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        route_ids = [route["id"] for route in res.data]
+
+        self.assertNotIn(self.route.id, route_ids)
+        self.assertIn(route_test.id, route_ids)
