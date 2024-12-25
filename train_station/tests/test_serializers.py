@@ -96,3 +96,79 @@ class TicketSerializerTest(TestCase):
 
         self.assertNotIn(self.route.id, route_ids)
         self.assertIn(route_test.id, route_ids)
+
+    def test_filter_journey_by_route(self):
+        station_test = Station.objects.create(name="Oslo")
+        route_test = Route.objects.create(source=self.station1, destination=station_test)
+        journey_test = Journey.objects.create(
+            route=route_test,
+            train=self.train,
+            departure_time=timezone.now() + timedelta(hours=2),
+            arrival_time=timezone.now() + timedelta(hours=5)
+        )
+        journey_test.crew.add(self.crew,)
+
+        res = self.client.get(
+            reverse("train_station:journey-list"), {
+                "route": f"{route_test.id}",
+            }
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        journey_ids = [journey["id"] for journey in res.data]
+
+        self.assertNotIn(self.journey.id, journey_ids)
+        self.assertIn(journey_test.id, journey_ids)
+
+    def test_filter_journey_by_departure_time(self):
+        station_test = Station.objects.create(name="Oslo")
+        route_test = Route.objects.create(source=self.station1, destination=station_test)
+        journey_test = Journey.objects.create(
+            route=route_test,
+            train=self.train,
+            departure_time=timezone.now() + timedelta(hours=10),
+            arrival_time=timezone.now() + timedelta(hours=12)
+        )
+        journey_test.crew.add(self.crew,)
+
+        formatted_departure_time = journey_test.departure_time.strftime("%Y-%m-%d %H:%M")
+
+        res = self.client.get(
+            reverse("train_station:journey-list"), {
+                "departure_time": f"{formatted_departure_time}",
+            }
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        journey_ids = [journey["id"] for journey in res.data]
+
+        self.assertNotIn(self.journey.id, journey_ids)
+        self.assertIn(journey_test.id, journey_ids)
+
+    def test_filter_journey_by_arrival_time(self):
+        station_test = Station.objects.create(name="Oslo")
+        route_test = Route.objects.create(source=self.station1, destination=station_test)
+        journey_test = Journey.objects.create(
+            route=route_test,
+            train=self.train,
+            departure_time=timezone.now() + timedelta(hours=10),
+            arrival_time=timezone.now() + timedelta(hours=12)
+        )
+        journey_test.crew.add(self.crew,)
+
+        formatted_arrival_time = journey_test.arrival_time.strftime("%Y-%m-%d %H:%M")
+
+        res = self.client.get(
+            reverse("train_station:journey-list"), {
+                "arrival_time": f"{formatted_arrival_time}",
+            }
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        journey_ids = [journey["id"] for journey in res.data]
+
+        self.assertNotIn(self.journey.id, journey_ids)
+        self.assertIn(journey_test.id, journey_ids)
