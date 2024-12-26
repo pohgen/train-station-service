@@ -1,9 +1,11 @@
 import os
+import time
 import uuid
 
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 from geopy.distance import geodesic
+from geopy.exc import GeocoderTimedOut
 from geopy.geocoders import Nominatim
 
 from django.conf import settings
@@ -12,9 +14,16 @@ from django.db.models import CASCADE
 
 
 def get_coordinates(city_name):
-    geolocator = Nominatim(user_agent="train_station_v1.0")
-    location = geolocator.geocode(city_name)
-    return location.latitude, location.longitude
+    for attempt in range(5):
+        try:
+            geolocator = Nominatim(user_agent="train_station_v1.0")
+            location = geolocator.geocode(city_name)
+            return location.latitude, location.longitude
+        except GeocoderTimedOut as error:
+            print(f"Geocoder timed out again: {error}")
+            if attempt < 5:
+                time.sleep(0.5)
+
 
 def crew_image_file_path(instance, filename):
     _, extension = os.path.splitext(filename)
