@@ -1,4 +1,8 @@
+import os
+import uuid
+
 from django.core.exceptions import ValidationError
+from django.utils.text import slugify
 from geopy.distance import geodesic
 from geopy.geocoders import Nominatim
 
@@ -12,10 +16,17 @@ def get_coordinates(city_name):
     location = geolocator.geocode(city_name)
     return location.latitude, location.longitude
 
+def crew_image_file_path(instance, filename):
+    _, extension = os.path.splitext(filename)
+    filename = f"{slugify(instance.last_name)}-{uuid.uuid4()}{extension}"
+
+    return os.path.join("uploads/staff/", filename)
+
 
 class Crew(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
+    image = models.ImageField(null=True, upload_to=crew_image_file_path)
 
     @property
     def full_name(self):

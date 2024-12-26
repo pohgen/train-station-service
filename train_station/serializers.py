@@ -8,7 +8,13 @@ from train_station.models import Crew, Station, Route, TrainType, Train, Journey
 class CrewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Crew
-        fields = ("id", "first_name", "last_name")
+        fields = ("id", "first_name", "last_name", "image")
+
+
+class CrewImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Crew
+        fields = ("id", "image")
 
 
 class StationSerializer(serializers.ModelSerializer):
