@@ -5,7 +5,16 @@ from django.utils import timezone
 from rest_framework.test import APITestCase, APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from train_station.models import Crew, Station, Route, TrainType, Train, Journey, Order, Ticket
+from train_station.models import (
+    Crew,
+    Station,
+    Route,
+    TrainType,
+    Train,
+    Journey,
+    Order,
+    Ticket
+)
 
 
 def sample_crew(**params):
@@ -71,7 +80,11 @@ def sample_journey(**params):
 def sample_order(**params):
     user, _ = get_user_model().objects.get_or_create(
         email="testuser@test.com",
-        defaults={"password": "testpass", "is_superuser": True, "is_staff": True}
+        defaults={
+            "password": "testpass",
+            "is_superuser": True,
+            "is_staff": True
+        }
     )
     defaults = {
         "user": user
@@ -95,7 +108,7 @@ class BaseTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = get_user_model().objects.create_superuser(
-            email="testuser1@test.com",
+            email="testuser@test.com",
             password="testpass"
         )
         refresh = RefreshToken.for_user(self.user)
