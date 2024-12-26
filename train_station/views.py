@@ -1,6 +1,10 @@
-from rest_framework import viewsets
+from django.db.models import F, Count
+from rest_framework import viewsets, mixins
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import GenericViewSet
 
 from train_station.models import Crew, Station, Route, TrainType, Train, Journey, Order
+from train_station.permissions import IsAdminOrIfAuthenticatedReadOnly
 from train_station.serializers import CrewSerializer, StationSerializer, OrderSerializer, \
     JourneySerializer, TrainSerializer, TrainTypeSerializer, RouteSerializer, RouteListSerializer, \
     RouteDetailSerializer, TrainListSerializer, TrainDetailSerializer, JourneyDetailSerializer, JourneyListSerializer, \
@@ -72,8 +76,21 @@ class TrainViewSet(viewsets.ModelViewSet):
 
 
 class JourneyViewSet(viewsets.ModelViewSet):
-    queryset = Journey.objects.all()
+    queryset = (
+        Journey.objects.all()
+        .select_related("route", "train")
+        .prefetch_related("crew")
+        .annotate(
+            tickets_available=(
+                    F("train__cargo_num") * F("train__places_in_cargo")
+                    - Count("tickets")
+            )
+        )
+    )
+
     serializer_class = JourneySerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+
 
     @staticmethod
     def _params_to_ints(qs):
@@ -110,16 +127,21 @@ class JourneyViewSet(viewsets.ModelViewSet):
         return JourneySerializer
 
 
-class OrderViewSet(viewsets.ModelViewSet):
+class OrderViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    GenericViewSet,
+):
     queryset = Order.objects.prefetch_related(
         "tickets__journey__route",
         "tickets__journey__train",
         "tickets__journey__crew"
     )
     serializer_class = OrderSerializer
+    permission_classes = (IsAuthenticated,)
 
-    # def get_queryset(self):
-    #     return Order.objects.filter(user=self.request.user)
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user)
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -130,5 +152,5 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         return OrderSerializer
 
-    # def perform_create(self, serializer):
-    #     serializer.save(user=self.request.user)
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

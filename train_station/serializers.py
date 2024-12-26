@@ -63,10 +63,11 @@ class JourneySerializer(serializers.ModelSerializer):
         fields = ("id", "route", "train", "crew", "departure_time", "arrival_time")
 
 
-class JourneyListSerializer(serializers.ModelSerializer):
+class JourneyListSerializer(JourneySerializer):
     route_source = serializers.CharField(source="route.source.name", read_only=True)
     route_destination = serializers.CharField(source="route.destination.name", read_only=True)
     train = serializers.CharField(source="train.name", read_only=True)
+    tickets_available = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Journey
@@ -75,6 +76,7 @@ class JourneyListSerializer(serializers.ModelSerializer):
             "route_source",
             "route_destination",
             "train",
+            "tickets_available",
             "departure_time",
             "arrival_time"
         )
@@ -83,10 +85,32 @@ class JourneyListSerializer(serializers.ModelSerializer):
 class JourneyDetailSerializer(serializers.ModelSerializer):
     route = RouteDetailSerializer(read_only=True)
     train = TrainDetailSerializer(read_only=True)
-    crew = CrewSerializer(read_only=True)
+    crew = serializers.CharField(source="crew.full_name", read_only=True)
+    tickets_available = serializers.IntegerField(read_only=True)
+    tickets_available_by_cargo = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Journey
-        fields = ("id", "route", "train", "crew", "departure_time", "arrival_time")
+        fields = (
+            "id",
+            "route",
+            "train",
+            "crew",
+            "tickets_available",
+            "tickets_available_by_cargo",
+            "departure_time",
+            "arrival_time"
+        )
+
+    def get_tickets_available_by_cargo(self, obj):
+        max_seats = obj.train.places_in_cargo
+        cargos = obj.train.cargo_num
+        free_seats = {i: max_seats for i in range(1, cargos + 1)}
+
+        for ticket in obj.tickets.all():
+            free_seats[ticket.cargo] -= 1
+
+        return free_seats
 
 
 class TicketSerializer(serializers.ModelSerializer):
