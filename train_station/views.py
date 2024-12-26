@@ -5,12 +5,33 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from train_station.models import Crew, Station, Route, TrainType, Train, Journey, Order
 from train_station.permissions import IsAdminOrIfAuthenticatedReadOnly
-from train_station.serializers import CrewSerializer, StationSerializer, OrderSerializer, \
-    JourneySerializer, TrainSerializer, TrainTypeSerializer, RouteSerializer, RouteListSerializer, \
-    RouteDetailSerializer, TrainListSerializer, TrainDetailSerializer, JourneyDetailSerializer, JourneyListSerializer, \
-    OrderListSerializer, CrewImageSerializer
+from train_station.models import (
+    Crew,
+    Station,
+    Route,
+    TrainType,
+    Train,
+    Journey,
+    Order
+)
+from train_station.serializers import (
+    CrewSerializer,
+    StationSerializer,
+    OrderSerializer,
+    JourneySerializer,
+    TrainSerializer,
+    TrainTypeSerializer,
+    RouteSerializer,
+    RouteListSerializer,
+    RouteDetailSerializer,
+    TrainListSerializer,
+    TrainDetailSerializer,
+    JourneyDetailSerializer,
+    JourneyListSerializer,
+    OrderListSerializer,
+    CrewImageSerializer
+)
 
 
 class CrewViewSet(
@@ -148,13 +169,19 @@ class JourneyViewSet(viewsets.ModelViewSet):
 
         if route:
             route_ids = self._params_to_ints(route)
-            queryset = queryset.filter(route__id__in=route_ids)
+            queryset = queryset.filter(
+                route__id__in=route_ids
+            )
 
         if departure_time:
-            queryset = queryset.filter(departure_time__startswith=departure_time)
+            queryset = queryset.filter(
+                departure_time__startswith=departure_time
+            )
 
         if arrival_time:
-            queryset = queryset.filter(arrival_time__startswith=arrival_time)
+            queryset = queryset.filter(
+                arrival_time__startswith=arrival_time
+            )
 
         return queryset.distinct()
 
