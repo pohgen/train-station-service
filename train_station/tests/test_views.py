@@ -329,3 +329,21 @@ class OrderViewTests(BaseTestCase):
         res = self.client.post(url, order_data, format="json")
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+    def test_create_order_with_existing_ticket(self):
+        url = reverse("train_station:order-list")
+
+        order_data = {
+            "tickets": [
+                {
+                    "journey": self.journey.id,
+                    "cargo": 1,
+                    "seat": 10,
+                },
+            ]
+        }
+        self.client.post(url, order_data, format="json")
+        res = self.client.post(url, order_data, format="json")
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
