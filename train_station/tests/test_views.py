@@ -1,9 +1,9 @@
+from datetime import timedelta
+from PIL import Image
 import os
 import tempfile
-from datetime import timedelta
 
-from PIL import Image
-from django.urls import reverse, resolve
+from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
@@ -11,8 +11,14 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from train_station.models import Order
-from train_station.tests.test_factories import BaseTestCase, sample_route, sample_train, sample_journey, \
-    sample_train_type, sample_order
+from train_station.tests.test_factories import (
+    BaseTestCase,
+    sample_route,
+    sample_train,
+    sample_journey,
+    sample_order
+)
+
 
 CREW_URL = reverse("train_station:crew-list")
 
@@ -47,7 +53,11 @@ class CrewImageUploadTests(BaseTestCase):
     def test_upload_image_bad_request(self):
         """Test uploading an invalid image"""
         url = image_upload_url(self.crew.id)
-        res = self.client.post(url, {"image": "not image"}, format="multipart")
+        res = self.client.post(
+            url,
+            {"image": "not image"},
+            format="multipart"
+        )
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -63,14 +73,21 @@ class CrewImageUploadTests(BaseTestCase):
         )
         """Test uploading an invalid image"""
         url = image_upload_url(self.crew.id)
-        res = self.client.post(url, {"image": "not image"}, format="multipart")
+        res = self.client.post(
+            url,
+            {"image": "not image"},
+            format="multipart"
+        )
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class RouteViewTests(BaseTestCase):
     def test_filter_by_source_and_destination(self):
-        route_test = sample_route(source=self.station1, destination=self.station2)
+        route_test = sample_route(
+            source=self.station1,
+            destination=self.station2
+        )
 
         res_source = self.client.get(
             reverse("train_station:route-list"), {
@@ -78,20 +95,21 @@ class RouteViewTests(BaseTestCase):
             }
         )
 
-        res_destination = self.client.get(
+        res_destin = self.client.get(
             reverse("train_station:route-list"), {
                 "destination": f"{self.station2.id}",
             }
         )
-        self.assertEqual(res_destination.status_code, status.HTTP_200_OK)
+        self.assertEqual(res_destin.status_code, status.HTTP_200_OK)
 
         route_source_ids = [route["id"] for route in res_source.data]
-        route_destination_ids = [route["id"] for route in res_destination.data]
+        route_destin_ids = [route["id"] for route in res_destin.data]
 
-        self.assertNotIn(self.route.id, route_destination_ids)
-        self.assertIn(route_test.id, route_destination_ids)
+        self.assertNotIn(self.route.id, route_destin_ids)
+        self.assertIn(route_test.id, route_destin_ids)
         self.assertNotIn(self.route.id, route_source_ids)
         self.assertIn(route_test.id, route_source_ids)
+
 
     def test_route_list_view(self):
         response = self.client.get(reverse("train_station:route-list"))
@@ -102,9 +120,14 @@ class RouteViewTests(BaseTestCase):
             self.assertNotIn("id", route["source"])
             self.assertNotIn("id", route["destination"])
 
+
     def test_route_detail_view(self):
-        route_test = sample_route(source=self.station1, destination=self.station2)
-        response = self.client.get(reverse("train_station:route-detail", args=[route_test.id]))
+        route_test = sample_route(
+            source=self.station1,
+            destination=self.station2
+        )
+        url = reverse("train_station:route-detail", args=[route_test.id])
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn("id", response.data["source"])
         self.assertIn("latitude", response.data["source"])
@@ -120,9 +143,11 @@ class TrainViewTests(BaseTestCase):
             self.assertIn("train_type", train)
             self.assertNotIn("id", train["train_type"])
 
+
     def test_train_detail_view(self):
         train_test = sample_train()
-        response = self.client.get(reverse("train_station:train-detail", args=[train_test.id]))
+        url = reverse("train_station:train-detail", args=[train_test.id])
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn("id", response.data["train_type"])
 
@@ -162,8 +187,16 @@ class JourneyViewTests(BaseTestCase):
             arrival_time=timezone.now() + timedelta(hours=15)
         )
 
-        formatted_departure_time = journey_test.departure_time.strftime("%Y-%m-%d %H:%M")
-        formatted_arrival_time = journey_test.arrival_time.strftime("%Y-%m-%d %H:%M")
+        formatted_departure_time = (
+            journey_test
+            .departure_time
+            .strftime("%Y-%m-%d %H:%M")
+        )
+        formatted_arrival_time = (
+            journey_test
+            .arrival_time
+            .strftime("%Y-%m-%d %H:%M")
+        )
 
         res_depart = self.client.get(
             reverse("train_station:journey-list"), {
@@ -204,8 +237,10 @@ class JourneyViewTests(BaseTestCase):
 
             self.assertIsInstance(journey["train"], str)
 
+
     def test_journey_detail_view(self):
-        response = self.client.get(reverse("train_station:journey-detail", args=[self.journey.id]))
+        url = reverse("train_station:journey-detail", args=[self.journey.id])
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
         self.assertIn("id", response.data)
@@ -228,7 +263,10 @@ class JourneyViewTests(BaseTestCase):
 
         self.assertIsInstance(response.data["crew"], list)
 
-        self.assertIsInstance(response.data["tickets_available_by_cargo"], dict)
+        self.assertIsInstance(
+            response.data["tickets_available_by_cargo"],
+            dict
+        )
 
 
 class OrderViewTests(BaseTestCase):
@@ -242,7 +280,10 @@ class OrderViewTests(BaseTestCase):
         order_ids = [order["id"] for order in res.data]
         self.assertIn(order.id, order_ids)
 
-        other_user = get_user_model().objects.create_user("other@myproject.com", "password")
+        other_user = get_user_model().objects.create_user(
+            "other@myproject.com",
+            "password"
+        )
         other_order = sample_order(user=other_user)
         res = self.client.get(url)
 
@@ -271,6 +312,7 @@ class OrderViewTests(BaseTestCase):
 
         self.assertEqual(created_order.tickets.count(), 1)
         self.assertEqual(created_order.tickets.first().cargo, 1)
+
 
     def test_create_order_invalid_ticket(self):
         url = reverse("train_station:order-list")
