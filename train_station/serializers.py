@@ -2,7 +2,16 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from rest_framework import serializers
 
-from train_station.models import Crew, Station, Route, TrainType, Train, Journey, Order, Ticket
+from train_station.models import (
+    Crew,
+    Station,
+    Route,
+    TrainType,
+    Train,
+    Journey,
+    Order,
+    Ticket,
+)
 
 
 class CrewSerializer(serializers.ModelSerializer):
@@ -55,6 +64,7 @@ class TrainSerializer(serializers.ModelSerializer):
         model = Train
         fields = ("id", "name", "cargo_num", "places_in_cargo", "train_type")
 
+
 class TrainListSerializer(TrainSerializer):
     train_type = serializers.CharField(source="train_type.name", read_only=True)
 
@@ -71,7 +81,9 @@ class JourneySerializer(serializers.ModelSerializer):
 
 class JourneyListSerializer(JourneySerializer):
     route_source = serializers.CharField(source="route.source.name", read_only=True)
-    route_destination = serializers.CharField(source="route.destination.name", read_only=True)
+    route_destination = serializers.CharField(
+        source="route.destination.name", read_only=True
+    )
     train = serializers.CharField(source="train.name", read_only=True)
     tickets_available = serializers.IntegerField(read_only=True)
 
@@ -84,7 +96,7 @@ class JourneyListSerializer(JourneySerializer):
             "train",
             "tickets_available",
             "departure_time",
-            "arrival_time"
+            "arrival_time",
         )
 
 
@@ -107,7 +119,7 @@ class JourneyDetailSerializer(serializers.ModelSerializer):
             "tickets_available",
             "tickets_available_by_cargo",
             "departure_time",
-            "arrival_time"
+            "arrival_time",
         )
 
     def get_tickets_available_by_cargo(self, obj):
@@ -125,10 +137,7 @@ class TicketSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         data = super().validate(attrs=attrs)
         Ticket.validate_ticket(
-            attrs["cargo"],
-            attrs["seat"],
-            attrs["journey"].train,
-            ValidationError
+            attrs["cargo"], attrs["seat"], attrs["journey"].train, ValidationError
         )
         return data
 

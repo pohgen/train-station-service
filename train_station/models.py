@@ -45,7 +45,6 @@ class Crew(models.Model):
         return f"{self.first_name} {self.last_name}"
 
 
-
 class Station(models.Model):
     name = models.CharField(max_length=255)
     latitude = models.FloatField(null=True, blank=True)
@@ -59,17 +58,17 @@ class Station(models.Model):
         super(Station, self).save(*args, **kwargs)
 
     def calculate_latitude(self):
-
         """Returns the latitude of the location based on city name.
-        Coordinates returned by the `get_coordinates` function in (latitude, longitude) format."""
+        Coordinates returned by the `get_coordinates` function in (latitude, longitude) format.
+        """
 
         coordinates = get_coordinates(self.name)
         return coordinates[0]
 
     def calculate_longitude(self):
-
         """Returns the longitude of the location based on city name.
-        Coordinates returned by the `get_coordinates` function in (latitude, longitude) format."""
+        Coordinates returned by the `get_coordinates` function in (latitude, longitude) format.
+        """
 
         coordinates = get_coordinates(self.name)
         return coordinates[1]
@@ -80,9 +79,10 @@ class Station(models.Model):
 
 class Route(models.Model):
     source = models.ForeignKey(Station, on_delete=CASCADE, related_name="source_routes")
-    destination = models.ForeignKey(Station, on_delete=CASCADE, related_name="destination_routes")
+    destination = models.ForeignKey(
+        Station, on_delete=CASCADE, related_name="destination_routes"
+    )
     distance = models.IntegerField(null=True, blank=True)
-
 
     def save(self, *args, **kwargs):
         if not self.distance:
@@ -143,7 +143,9 @@ class Journey(models.Model):
 
 class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=CASCADE, related_name="orders")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=CASCADE, related_name="orders"
+    )
 
     def __str__(self):
         return self.created_at.strftime("%Y-%m-%d %H:%M:%S")

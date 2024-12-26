@@ -13,7 +13,7 @@ from train_station.models import (
     Train,
     Journey,
     Order,
-    Ticket
+    Ticket,
 )
 
 
@@ -39,16 +39,14 @@ def sample_station(**params):
 def sample_route(**params):
     defaults = {
         "source": sample_station(name="Kyiv"),
-        "destination": sample_station(name="Lviv")
+        "destination": sample_station(name="Lviv"),
     }
     defaults.update(params)
     return Route.objects.create(**defaults)
 
 
 def sample_train_type(**params):
-    defaults = {
-        "name": "Passenger"
-    }
+    defaults = {"name": "Passenger"}
     defaults.update(params)
     return TrainType.objects.create(**defaults)
 
@@ -58,7 +56,7 @@ def sample_train(**params):
         "name": "Express-1",
         "cargo_num": 5,
         "places_in_cargo": 50,
-        "train_type": sample_train_type()
+        "train_type": sample_train_type(),
     }
     defaults.update(params)
     return Train.objects.create(**defaults)
@@ -69,7 +67,7 @@ def sample_journey(**params):
         "route": sample_route(),
         "train": sample_train(),
         "departure_time": timezone.now(),
-        "arrival_time": timezone.now() + timedelta(hours=5)
+        "arrival_time": timezone.now() + timedelta(hours=5),
     }
     defaults.update(params)
     journey = Journey.objects.create(**defaults)
@@ -80,15 +78,9 @@ def sample_journey(**params):
 def sample_order(**params):
     user, _ = get_user_model().objects.get_or_create(
         email="testuser@test.com",
-        defaults={
-            "password": "testpass",
-            "is_superuser": True,
-            "is_staff": True
-        }
+        defaults={"password": "testpass", "is_superuser": True, "is_staff": True},
     )
-    defaults = {
-        "user": user
-    }
+    defaults = {"user": user}
     defaults.update(params)
     return Order.objects.create(**defaults)
 
@@ -108,13 +100,10 @@ class BaseTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = get_user_model().objects.create_superuser(
-            email="testuser@test.com",
-            password="testpass"
+            email="testuser@test.com", password="testpass"
         )
         refresh = RefreshToken.for_user(self.user)
-        self.client.credentials(
-            HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}"
-        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}")
 
         self.station = sample_station()
         self.station1 = sample_station(name="Kharkiv")

@@ -6,15 +6,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from train_station.permissions import IsAdminOrIfAuthenticatedReadOnly
-from train_station.models import (
-    Crew,
-    Station,
-    Route,
-    TrainType,
-    Train,
-    Journey,
-    Order
-)
+from train_station.models import Crew, Station, Route, TrainType, Train, Journey, Order
 from train_station.serializers import (
     CrewSerializer,
     StationSerializer,
@@ -30,7 +22,7 @@ from train_station.serializers import (
     JourneyDetailSerializer,
     JourneyListSerializer,
     OrderListSerializer,
-    CrewImageSerializer
+    CrewImageSerializer,
 )
 
 
@@ -57,6 +49,7 @@ class CrewViewSet(
 
         return CrewSerializer
 
+
 class StationViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
@@ -65,6 +58,7 @@ class StationViewSet(
     queryset = Station.objects.all()
     serializer_class = StationSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+
 
 class RouteViewSet(
     mixins.CreateModelMixin,
@@ -83,7 +77,7 @@ class RouteViewSet(
 
     def get_queryset(self):
         source = self.request.query_params.get("source")
-        destination =self.request.query_params.get("destination")
+        destination = self.request.query_params.get("destination")
 
         queryset = self.queryset
 
@@ -144,15 +138,13 @@ class JourneyViewSet(viewsets.ModelViewSet):
         .prefetch_related("crew")
         .annotate(
             tickets_available=(
-                    F("train__cargo_num") * F("train__places_in_cargo")
-                    - Count("tickets")
+                F("train__cargo_num") * F("train__places_in_cargo") - Count("tickets")
             )
         )
     )
 
     serializer_class = JourneySerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
-
 
     @staticmethod
     def _params_to_ints(qs):
@@ -164,24 +156,17 @@ class JourneyViewSet(viewsets.ModelViewSet):
         departure_time = self.request.query_params.get("departure_time")
         arrival_time = self.request.query_params.get("arrival_time")
 
-
         queryset = self.queryset
 
         if route:
             route_ids = self._params_to_ints(route)
-            queryset = queryset.filter(
-                route__id__in=route_ids
-            )
+            queryset = queryset.filter(route__id__in=route_ids)
 
         if departure_time:
-            queryset = queryset.filter(
-                departure_time__startswith=departure_time
-            )
+            queryset = queryset.filter(departure_time__startswith=departure_time)
 
         if arrival_time:
-            queryset = queryset.filter(
-                arrival_time__startswith=arrival_time
-            )
+            queryset = queryset.filter(arrival_time__startswith=arrival_time)
 
         return queryset.distinct()
 
@@ -201,9 +186,7 @@ class OrderViewSet(
     GenericViewSet,
 ):
     queryset = Order.objects.prefetch_related(
-        "tickets__journey__route",
-        "tickets__journey__train",
-        "tickets__journey__crew"
+        "tickets__journey__route", "tickets__journey__train", "tickets__journey__crew"
     )
     serializer_class = OrderSerializer
     permission_classes = (IsAuthenticated,)

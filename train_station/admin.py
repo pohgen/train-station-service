@@ -19,4 +19,3 @@ admin.site.register(Train)
 admin.site.register(Journey)
 admin.site.register(Order)
 admin.site.register(Ticket)
-
