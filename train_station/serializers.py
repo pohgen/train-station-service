@@ -91,7 +91,9 @@ class JourneyListSerializer(JourneySerializer):
 class JourneyDetailSerializer(serializers.ModelSerializer):
     route = RouteDetailSerializer(read_only=True)
     train = TrainDetailSerializer(read_only=True)
-    crew = serializers.CharField(source="crew.full_name", read_only=True)
+    crew = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field="full_name"
+    )
     tickets_available = serializers.IntegerField(read_only=True)
     tickets_available_by_cargo = serializers.SerializerMethodField(read_only=True)
 
