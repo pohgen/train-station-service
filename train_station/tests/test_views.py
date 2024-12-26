@@ -16,7 +16,7 @@ from train_station.tests.test_factories import (
     sample_route,
     sample_train,
     sample_journey,
-    sample_order
+    sample_order, sample_crew, sample_station
 )
 
 
@@ -26,10 +26,6 @@ CREW_URL = reverse("train_station:crew-list")
 def image_upload_url(crew_id):
     """Return URL for recipe image upload"""
     return reverse("train_station:crew-upload-image", args=[crew_id])
-
-
-def detail_url(crew_id):
-    return reverse("train_station:crew-detail", args=[crew_id])
 
 
 class CrewImageUploadTests(BaseTestCase):
@@ -347,3 +343,126 @@ class OrderViewTests(BaseTestCase):
         res = self.client.post(url, order_data, format="json")
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class PermissionTests(BaseTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.url_crew = reverse("train_station:crew-list")
+        self.url_station = reverse("train_station:station-list")
+        self.url_route = reverse("train_station:route-list")
+        self.url_route_detail = reverse(
+            "train_station:route-detail",
+            args=[self.route.id]
+        )
+        self.url_train = reverse("train_station:train-list")
+        self.url_train_detail = reverse(
+            "train_station:train-detail",
+            args=[self.route.id]
+        )
+        self.url_journey = reverse("train_station:journey-list")
+        self.url_journey_detail = reverse(
+            "train_station:journey-detail",
+            args=[self.route.id]
+        )
+        self.url_order = reverse("train_station:order-list")
+
+        self.urls = [
+            self.url_crew,
+            self.url_station,
+            self.url_route,
+            self.url_route_detail,
+            self.url_train,
+            self.url_train_detail,
+            self.url_journey,
+            self.url_journey_detail,
+        ]
+
+    def test_unauthenticated_user_access(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f"Bearer {1234}"
+        )
+        self.urls.append(self.url_order)
+        for url in self.urls:
+            res_get = self.client.get(url)
+            res_post = self.client.post(url, {})
+            self.assertEqual(res_get.status_code, status.HTTP_401_UNAUTHORIZED)
+            self.assertEqual(res_post.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+    def test_authenticated_user_access(self):
+        self.user = get_user_model().objects.create_user(
+            email="user@test.com",
+            password="testpass"
+        )
+        refresh = RefreshToken.for_user(self.user)
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}"
+        )
+
+        for url in self.urls:
+            res_get = self.client.get(url)
+            res_post = self.client.post(url, {})
+            self.assertEqual(res_get.status_code, status.HTTP_200_OK)
+            self.assertEqual(res_post.status_code, status.HTTP_403_FORBIDDEN)
+
+
+    def test_authenticated_admin_access(self):
+        for url in self.urls:
+            res_get = self.client.get(url)
+            self.assertEqual(res_get.status_code, status.HTTP_200_OK)
+        res_post = self.client.post(
+            self.url_crew, {
+                sample_crew(
+                    first_name="Kolya",
+                    last_name="Tolabko"
+                )
+            }
+        )
+        self.assertEqual(res_post.status_code, status.HTTP_201_CREATED)
+
+        res_post = self.client.post(
+            self.url_station, {
+                sample_station(
+                    name="Pekin",
+                )
+            }
+        )
+        self.assertEqual(res_post.status_code, status.HTTP_201_CREATED)
+
+        res_post = self.client.post(
+            self.url_route, {
+                sample_route(
+                    source=self.station2,
+                    destination=self.station1,
+                )
+            }
+        )
+        self.assertEqual(res_post.status_code, status.HTTP_201_CREATED)
+
+        res_post = self.client.post(
+            self.url_journey, {
+                sample_journey(
+                    route=self.route,
+                    train=self.train,
+                    crew=self.crew,
+                    departure_time=timezone.now(),
+                    arrival_time = timezone.now() + timedelta(hours=2)
+                )
+            }
+        )
+        self.assertEqual(res_post.status_code, status.HTTP_201_CREATED)
+
+        res_post = self.client.post(
+            self.url_train, {
+                sample_train(
+                    name="SaS221",
+                    train_type=self.train_type
+                )
+            }
+        )
+        self.assertEqual(res_post.status_code, status.HTTP_201_CREATED)
+
+
+
