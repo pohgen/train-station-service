@@ -39,9 +39,17 @@ class Crew(models.Model):
 
 class Station(models.Model):
     name = models.CharField(max_length=255)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
 
-    @property
-    def latitude(self):
+    def save(self, *args, **kwargs):
+        if not self.latitude:
+            self.latitude = self.calculate_latitude()
+        if not self.longitude:
+            self.longitude = self.calculate_longitude()
+        super(Station, self).save(*args, **kwargs)
+
+    def calculate_latitude(self):
 
         """Returns the latitude of the location based on city name.
         Coordinates returned by the `get_coordinates` function in (latitude, longitude) format."""
@@ -49,8 +57,7 @@ class Station(models.Model):
         coordinates = get_coordinates(self.name)
         return coordinates[0]
 
-    @property
-    def longitude(self):
+    def calculate_longitude(self):
 
         """Returns the longitude of the location based on city name.
         Coordinates returned by the `get_coordinates` function in (latitude, longitude) format."""
@@ -65,9 +72,15 @@ class Station(models.Model):
 class Route(models.Model):
     source = models.ForeignKey(Station, on_delete=CASCADE, related_name="source_routes")
     destination = models.ForeignKey(Station, on_delete=CASCADE, related_name="destination_routes")
+    distance = models.IntegerField(null=True, blank=True)
 
-    @property
-    def distance(self):
+
+    def save(self, *args, **kwargs):
+        if not self.distance:
+            self.distance = self.calculate_distance()
+        super(Route, self).save(*args, **kwargs)
+
+    def calculate_distance(self):
         """
         Returns the integer distance of 2 cities based on their name.
         Coordinates returned by the `get_coordinates` and counted kilometers by 'geodesic'
