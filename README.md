@@ -61,10 +61,20 @@ docker exec -it <id> sh
 python manage.py createsuperuser
 ```
 
-6. Go to http://127.0.0.1:8000/ or http://localhost:8000/
+6. Load data from fixture:
+```shell
+# Locally:
+python manage.py loaddata fixture_train_station.json
+
+# Using Docker:
+docker exec -it <id> sh
+python manage.py loaddata fixture_train_station.json
+```
+
+7. Go to http://127.0.0.1:8000/ or http://localhost:8000/
 
 
-7. Create new user to discover the API:
+8. Create new user to discover the API:
 
 * Create a new user via /api/user/register/ or use a previously created superuser
 * Get access token via /api/user/token/ (it will be active for 10 minutes)
