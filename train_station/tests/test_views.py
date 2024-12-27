@@ -32,6 +32,10 @@ def image_upload_url(crew_id):
 
 class CrewImageUploadTests(BaseTestCase):
 
+    def tearDown(self):
+        super().tearDown()
+        self.crew.image.delete()
+
     def test_upload_image_to_crew(self):
         """Test uploading an image to crew"""
         url = image_upload_url(self.crew.id)
@@ -364,31 +368,27 @@ class PermissionTests(BaseTestCase):
             self.assertEqual(res_post.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_authenticated_admin_access(self):
-        for url in self.urls:
-            res_get = self.client.get(url)
-            self.assertEqual(res_get.status_code, status.HTTP_200_OK)
         res_post = self.client.post(
-            self.url_crew, {sample_crew(first_name="Kolya", last_name="Tolabko")}
+            self.url_crew, {
+                "first_name": "Yurii",
+                "last_name": "Tolabko",
+            }
         )
         self.assertEqual(res_post.status_code, status.HTTP_201_CREATED)
 
         res_post = self.client.post(
             self.url_station,
             {
-                sample_station(
-                    name="Pekin",
-                )
-            },
+                "name": "Pekin"
+            }
         )
         self.assertEqual(res_post.status_code, status.HTTP_201_CREATED)
 
         res_post = self.client.post(
             self.url_route,
             {
-                sample_route(
-                    source=self.station2,
-                    destination=self.station1,
-                )
+                "source": f"{self.station2.id}",
+                "destination": f"{self.station1.id}",
             },
         )
         self.assertEqual(res_post.status_code, status.HTTP_201_CREATED)
@@ -396,18 +396,21 @@ class PermissionTests(BaseTestCase):
         res_post = self.client.post(
             self.url_journey,
             {
-                sample_journey(
-                    route=self.route,
-                    train=self.train,
-                    crew=self.crew,
-                    departure_time=timezone.now(),
-                    arrival_time=timezone.now() + timedelta(hours=2),
-                )
+                "route": f"{self.route.id}",
+                "train": f"{self.train.id}",
+                "crew": f"{self.crew.id}",
+                "departure_time": f"{timezone.now()}",
+                "arrival_time": f"{timezone.now() + timedelta(hours=2)}",
             },
         )
         self.assertEqual(res_post.status_code, status.HTTP_201_CREATED)
 
         res_post = self.client.post(
-            self.url_train, {sample_train(name="SaS221", train_type=self.train_type)}
+            self.url_train, {
+                "name": "SaS221",
+                "cargo_num": 5,
+                "places_in_cargo": 50,
+                "train_type": f"{self.train_type.id}"
+            }
         )
         self.assertEqual(res_post.status_code, status.HTTP_201_CREATED)

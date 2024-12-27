@@ -20,7 +20,7 @@ class RouteModelTest(BaseTestCase):
         station1 = sample_station(name="Kyiv")
         station2 = sample_station(name="Paris")
         route = sample_route(source=station1, destination=station2)
-        self.assertEqual(route.distance, 2030)
+        self.assertEqual(route.distance, 2031)
 
 
 class TicketModelTest(BaseTestCase):

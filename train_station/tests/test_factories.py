@@ -118,4 +118,3 @@ class BaseTestCase(APITestCase):
 
     def tearDown(self):
         get_user_model().objects.all().delete()
-        self.crew.image.delete()
