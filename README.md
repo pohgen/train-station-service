@@ -77,7 +77,7 @@ python manage.py loaddata fixture_train_station.json
 8. Create new user to discover the API:
 
 * Create a new user via /api/user/register/ or use a previously created superuser
-* Get access token via /api/user/token/ (it will be active for 10 minutes)
+* Get access token via /api/user/token/ (it will be active for 60 minutes)
 ## API Endpoints
 
 ### User Endpoints:
