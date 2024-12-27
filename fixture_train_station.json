@@ -1,0 +1,262 @@
+[
+  {
+    "model": "train_station.crew",
+    "pk": 1,
+    "fields": {
+      "first_name": "John",
+      "last_name": "Doe",
+      "image": null
+    }
+  },
+  {
+    "model": "train_station.crew",
+    "pk": 2,
+    "fields": {
+      "first_name": "Jane",
+      "last_name": "Smith",
+      "image": null
+    }
+  },
+  {
+    "model": "train_station.crew",
+    "pk": 3,
+    "fields": {
+      "first_name": "Alice",
+      "last_name": "Brown",
+      "image": null
+    }
+  },
+  {
+    "model": "train_station.crew",
+    "pk": 4,
+    "fields": {
+      "first_name": "Bob",
+      "last_name": "White",
+      "image": null
+    }
+  },
+  {
+    "model": "train_station.crew",
+    "pk": 5,
+    "fields": {
+      "first_name": "Charlie",
+      "last_name": "Black",
+      "image": null
+    }
+  },
+  {
+    "model": "train_station.station",
+    "pk": 1,
+    "fields": {
+      "name": "Berlin",
+      "latitude": 52.5200,
+      "longitude": 13.4050
+    }
+  },
+  {
+    "model": "train_station.station",
+    "pk": 2,
+    "fields": {
+      "name": "Paris",
+      "latitude": 48.8566,
+      "longitude": 2.3522
+    }
+  },
+  {
+    "model": "train_station.station",
+    "pk": 3,
+    "fields": {
+      "name": "London",
+      "latitude": 51.5074,
+      "longitude": -0.1278
+    }
+  },
+  {
+    "model": "train_station.station",
+    "pk": 4,
+    "fields": {
+      "name": "New York",
+      "latitude": 40.7128,
+      "longitude": -74.0060
+    }
+  },
+  {
+    "model": "train_station.station",
+    "pk": 5,
+    "fields": {
+      "name": "Los Angeles",
+      "latitude": 34.0522,
+      "longitude": -118.2437
+    }
+  },
+  {
+    "model": "train_station.route",
+    "pk": 1,
+    "fields": {
+      "source": 1,
+      "destination": 2,
+      "distance": 1050
+    }
+  },
+  {
+    "model": "train_station.route",
+    "pk": 2,
+    "fields": {
+      "source": 2,
+      "destination": 3,
+      "distance": 340
+    }
+  },
+  {
+    "model": "train_station.route",
+    "pk": 3,
+    "fields": {
+      "source": 3,
+      "destination": 4,
+      "distance": 5600
+    }
+  },
+  {
+    "model": "train_station.route",
+    "pk": 4,
+    "fields": {
+      "source": 4,
+      "destination": 5,
+      "distance": 3900
+    }
+  },
+  {
+    "model": "train_station.route",
+    "pk": 5,
+    "fields": {
+      "source": 5,
+      "destination": 1,
+      "distance": 9200
+    }
+  },
+  {
+    "model": "train_station.traintype",
+    "pk": 1,
+    "fields": {
+      "name": "Freight"
+    }
+  },
+  {
+    "model": "train_station.traintype",
+    "pk": 2,
+    "fields": {
+      "name": "Passenger"
+    }
+  },
+  {
+    "model": "train_station.traintype",
+    "pk": 3,
+    "fields": {
+      "name": "High-speed"
+    }
+  },
+  {
+    "model": "train_station.traintype",
+    "pk": 4,
+    "fields": {
+      "name": "Regional"
+    }
+  },
+  {
+    "model": "train_station.traintype",
+    "pk": 5,
+    "fields": {
+      "name": "Luxury"
+    }
+  },
+  {
+    "model": "train_station.train",
+    "pk": 1,
+    "fields": {
+      "name": "Express 1",
+      "cargo_num": 10,
+      "places_in_cargo": 100,
+      "train_type": 1
+    }
+  },
+  {
+    "model": "train_station.train",
+    "pk": 2,
+    "fields": {
+      "name": "Express 2",
+      "cargo_num": 15,
+      "places_in_cargo": 120,
+      "train_type": 2
+    }
+  },
+  {
+    "model": "train_station.journey",
+    "pk": 1,
+    "fields": {
+      "route": 1,
+      "train": 1,
+      "departure_time": "2024-06-01T08:00:00Z",
+      "arrival_time": "2024-06-01T12:00:00Z"
+    }
+  },
+  {
+    "model": "train_station.journey",
+    "pk": 2,
+    "fields": {
+      "route": 2,
+      "train": 2,
+      "departure_time": "2024-06-02T09:00:00Z",
+      "arrival_time": "2024-06-02T11:00:00Z"
+    }
+  },
+  {
+    "model": "train_station.journey",
+    "pk": 3,
+    "fields": {
+      "route": 3,
+      "train": 1,
+      "departure_time": "2024-06-03T07:00:00Z",
+      "arrival_time": "2024-06-03T15:00:00Z"
+    }
+  },
+  {
+    "model": "train_station.journey",
+    "pk": 4,
+    "fields": {
+      "route": 4,
+      "train": 2,
+      "departure_time": "2024-06-04T10:00:00Z",
+      "arrival_time": "2024-06-04T18:00:00Z"
+    }
+  },
+  {
+    "model": "train_station.journey",
+    "pk": 5,
+    "fields": {
+      "route": 5,
+      "train": 1,
+      "departure_time": "2024-06-05T06:00:00Z",
+      "arrival_time": "2024-06-05T20:00:00Z"
+    }
+  },
+  {
+    "model": "train_station.journey",
+    "pk": 6,
+    "fields": {
+      "route": 1,
+      "train": 2,
+      "departure_time": "2024-06-06T08:30:00Z",
+      "arrival_time": "2024-06-06T12:30:00Z"
+    }
+  },
+  {
+    "model": "train_station.journey",
+    "pk": 7,
+    "fields": {
+      "route": 2,
+      "train": 1,
+      "departure_time": "2024-06-07T09:45:00Z",
+      "arrival_time": "2024-06-07T11:45:00Z"
+    }
+  }
+]
