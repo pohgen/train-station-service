@@ -129,6 +129,9 @@ class Journey(models.Model):
 
     class Meta:
         ordering = ["-departure_time"]
+        indexes = [
+            models.Index(fields=["route", "departure_time", "arrival_time"]),
+        ]
 
 
 class Order(models.Model):
