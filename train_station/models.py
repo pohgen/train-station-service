@@ -193,7 +193,6 @@ class Ticket(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=("cargo", "seat", "journey"),
-                name="unique_cargo_seat_journey"
+                fields=("cargo", "seat", "journey"), name="unique_cargo_seat_journey"
             )
         ]
