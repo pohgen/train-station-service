@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Count
 from rest_framework import serializers
 
 from train_station.models import (
@@ -23,7 +24,7 @@ class CrewSerializer(serializers.ModelSerializer):
 class CrewImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Crew
-        fields = ("id", "image")
+        fields = ("image",)
 
 
 class StationSerializer(serializers.ModelSerializer):
@@ -124,13 +125,24 @@ class JourneyDetailSerializer(serializers.ModelSerializer):
             "arrival_time",
         )
 
+    def to_representation(self, instance):
+        queryset = Crew.objects.prefetch_related("full_name")
+        return super().to_representation(instance)
+
     def get_tickets_available_by_cargo(self, obj):
         max_seats = obj.train.places_in_cargo
         cargos = obj.train.cargo_num
+
+        tickets_count_by_cargo = (
+            obj.tickets.values("cargo")
+            .annotate(ticket_count=Count("cargo"))
+            .values("cargo", "ticket_count")
+        )
+
         free_seats = {i: max_seats for i in range(1, cargos + 1)}
 
-        for ticket in obj.tickets.all():
-            free_seats[ticket.cargo] -= 1
+        for ticket in tickets_count_by_cargo:
+            free_seats[ticket["cargo"]] -= ticket["ticket_count"]
 
         return free_seats
 
