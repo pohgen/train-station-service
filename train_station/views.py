@@ -6,7 +6,15 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from train_station.permissions import IsAdminOrIfAuthenticatedReadOnly
-from train_station.models import Crew, Station, Route, TrainType, Train, Journey, Order
+from train_station.models import (
+    Crew,
+    Station,
+    Route,
+    TrainType,
+    Train,
+    Journey,
+    Order
+)
 from train_station.serializers import (
     CrewSerializer,
     StationSerializer,
