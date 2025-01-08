@@ -369,19 +369,15 @@ class PermissionTests(BaseTestCase):
 
     def test_authenticated_admin_access(self):
         res_post = self.client.post(
-            self.url_crew, {
+            self.url_crew,
+            {
                 "first_name": "Yurii",
                 "last_name": "Tolabko",
-            }
+            },
         )
         self.assertEqual(res_post.status_code, status.HTTP_201_CREATED)
 
-        res_post = self.client.post(
-            self.url_station,
-            {
-                "name": "Pekin"
-            }
-        )
+        res_post = self.client.post(self.url_station, {"name": "Pekin"})
         self.assertEqual(res_post.status_code, status.HTTP_201_CREATED)
 
         res_post = self.client.post(
@@ -406,11 +402,12 @@ class PermissionTests(BaseTestCase):
         self.assertEqual(res_post.status_code, status.HTTP_201_CREATED)
 
         res_post = self.client.post(
-            self.url_train, {
+            self.url_train,
+            {
                 "name": "SaS221",
                 "cargo_num": 5,
                 "places_in_cargo": 50,
-                "train_type": f"{self.train_type.id}"
-            }
+                "train_type": f"{self.train_type.id}",
+            },
         )
         self.assertEqual(res_post.status_code, status.HTTP_201_CREATED)

@@ -8,11 +8,7 @@ from django.db.utils import OperationalError
 
 class Command(BaseCommand):
 
-    @backoff.on_exception(
-        backoff.expo,
-        OperationalError,
-        max_time=60
-    )
+    @backoff.on_exception(backoff.expo, OperationalError, max_time=60)
     def connect(self):
         connections["default"].ensure_connection()
         self.stdout.write(self.style.SUCCESS("Connected successfully!"))
