@@ -191,4 +191,9 @@ class Ticket(models.Model):
         return f"Cargo: {self.cargo}, Seat:{self.seat}"
 
     class Meta:
-        unique_together = ("cargo", "seat", "journey")
+        constraints = [
+            models.UniqueConstraint(
+                fields=("cargo", "seat", "journey"),
+                name="unique_cargo_seat_journey"
+            )
+        ]
