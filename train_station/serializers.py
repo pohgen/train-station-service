@@ -30,12 +30,14 @@ class StationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Station
         fields = ("id", "name", "latitude", "longitude")
+        read_only_fields = ("latitude", "longitude")
 
 
 class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
         fields = ("id", "source", "destination", "distance")
+        read_only_fields = ("distance",)
 
 
 class RouteListSerializer(serializers.ModelSerializer):
