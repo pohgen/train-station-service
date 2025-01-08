@@ -13,7 +13,7 @@ from train_station.views import (
 
 router = routers.DefaultRouter()
 
-router.register("crew", CrewViewSet)
+router.register("crews", CrewViewSet)
 router.register("stations", StationViewSet)
 router.register("routes", RouteViewSet)
 router.register("trains", TrainViewSet)
