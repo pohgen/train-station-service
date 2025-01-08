@@ -21,6 +21,6 @@ router.register("train-types", TrainTypeViewSet)
 router.register("journeys", JourneyViewSet)
 router.register("orders", OrderViewSet)
 
-urlpatterns = [path("", include(router.urls))]
+urlpatterns = router.urls
 
 app_name = "train_station"
