@@ -18,7 +18,9 @@ def get_coordinates(city_name):
         try:
             geolocator = Nominatim(user_agent="train_station_v1.0")
             location = geolocator.geocode(city_name)
-            return location.latitude, location.longitude
+            if location:
+                return location.latitude, location.longitude
+            raise ValueError(f"Coordinates for '{city_name}' could not be found!")
         except GeocoderTimedOut as error:
             print(f"Geocoder timed out again: {error}")
             if attempt < 5:
@@ -51,27 +53,11 @@ class Station(models.Model):
     longitude = models.FloatField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if not self.latitude:
-            self.latitude = self.calculate_latitude()
-        if not self.longitude:
-            self.longitude = self.calculate_longitude()
+        if not self.latitude or not self.longitude:
+            coordinates = get_coordinates(self.name)
+            self.latitude = coordinates[0]
+            self.longitude = coordinates[1]
         super(Station, self).save(*args, **kwargs)
-
-    def calculate_latitude(self):
-        """Returns the latitude of the location based on city name.
-        Coordinates returned by the `get_coordinates` function in (latitude, longitude) format.
-        """
-
-        coordinates = get_coordinates(self.name)
-        return coordinates[0]
-
-    def calculate_longitude(self):
-        """Returns the longitude of the location based on city name.
-        Coordinates returned by the `get_coordinates` function in (latitude, longitude) format.
-        """
-
-        coordinates = get_coordinates(self.name)
-        return coordinates[1]
 
     def __str__(self):
         return self.name
@@ -94,8 +80,12 @@ class Route(models.Model):
         Returns the integer distance of 2 cities based on their name.
         Coordinates returned by the `get_coordinates` and counted kilometers by 'geodesic'
         """
-        coord_source = get_coordinates(self.source.name)
-        coord_destination = get_coordinates(self.destination.name)
+        try:
+            coord_source = get_coordinates(self.source.name)
+            coord_destination = get_coordinates(self.destination.name)
+        except ValueError as error:
+            raise ValueError(f"Error in getting coordinates: {error}")
+
         distance = geodesic(coord_source, coord_destination).kilometers
         return int(distance)
 
